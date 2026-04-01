@@ -3,12 +3,11 @@
 #include "stdbool.h"
 
 
-#define NOP()             {asm("nop");}
-
-
 
 #if WITH_FREE_RTOS
 #include "FreeRTOS.h"
+TickType_t xTaskGetTickCount(void);
+TickType_t xTaskGetTickCountFromISR(void);
 #define GetSysTick()          (__get_IPSR()?xTaskGetTickCountFromISR():xTaskGetTickCount())
 #else
 static uint64_t msTickCnt;
@@ -19,7 +18,7 @@ void msTickIncrease()
 #define GetSysTick()          (msTickCnt)
 #endif
 
-
+#define NOP()             {asm("nop");}
 
 
 /*
@@ -93,6 +92,22 @@ void osTaskGetTimeCost(osTimeCost_T* pTimeCost)
         pTimeCost->timeCostMs = (uint32_t)(u64TempTime / 1000);
     }
     pTimeCost->timeCache = u64Now;
+}
+
+/*
+********************************************************************************
+*                                osTaskIsTimeOutClear()
+*                                 清除计时-重新计时
+* Description : 清除计时-重新计时
+* Argument(s) : 无
+* Return(s)   : 无
+* Caller(s)   : Internal
+* Note(s)     : 清pTimer
+********************************************************************************
+*/
+void osTaskIsTimeOutClear(volatile uint32_t* pTimer)
+{
+    *pTimer = 0;
 }
 
 /*
@@ -193,7 +208,7 @@ uint8_t osTaskIsTimeOutUs(volatile uint32_t* pTimer, uint32_t u32TimeOutUs)
 }
 
 //死循环延时us
-__attribute__((always_inline)) inline void osDelayByLoop_us(uint32_t u32nus)
+void osDelayByLoop_us(uint32_t u32nus)
 {
     uint32_t sysTickLoad = SYSTICK_LOAD_REG;
     uint32_t sysTickVal = SYSTICK_CURRENT_VALUE_REG;
@@ -233,7 +248,7 @@ __attribute__((always_inline)) inline void osDelayByLoop_us(uint32_t u32nus)
 }
 
 //死循环延时ms
-__attribute__((always_inline)) inline void osDelayByLoop_ms(uint32_t u32nms)
+void osDelayByLoop_ms(uint32_t u32nms)
 {
     uint32_t sysTickLoad = SYSTICK_LOAD_REG;
     uint32_t sysTickVal = SYSTICK_CURRENT_VALUE_REG;

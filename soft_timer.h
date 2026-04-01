@@ -39,10 +39,11 @@ void osTaskDelay(uint16_t ms);
 void osTaskGetTimeCost(osTimeCost_T* pTimeCost);
 
 uint8_t osTaskIsTimeOutMs(volatile uint32_t* pTimer, uint32_t u32TimeOutMs);
+void osTaskIsTimeOutClear(volatile uint32_t* pTimer);
 uint8_t osTaskIsTimeOutUs(volatile uint32_t* pTimer, uint32_t u32TimeOutUs);
 
 //À¿—≠ª∑—” ±us
-void osDelayByLoop_us(uint32_t u32nus);
-void osDelayByLoop_ms(uint32_t u32nms);
+void  osDelayByLoop_us(uint32_t u32nus);
+void  osDelayByLoop_ms(uint32_t u32nms);
 
 #endif
